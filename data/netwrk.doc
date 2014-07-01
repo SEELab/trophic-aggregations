@@ -1,0 +1,1052 @@
+       University of Maryland                    UMCEES Ref. No. 82- 7 CBL
+       Center for Environmental &
+          Estuarine Studies
+       Chesapeake Biological Laboratory
+       Solomons, MD 20688-0038
+       Tel: (410) 326-7266
+       FAX: (410) 326-7378
+       Internet: ulan@cbl.umces.edu
+
+
+                             NETWRK 4.2b: A Package
+                         of Computer Algorithms to
+                      Analyze Ecological Flow Networks
+
+
+
+                     Copyright 1982,1987,1998,1999,2002
+                            Robert E. Ulanowicz
+
+      I. Introduction
+
+           Sometime during the mid-1970's it became apparent that
+ ecological modeling in the form of a set of coupled, deterministic
+ differential equations was not going to be the panacea for analyzing whole
+ ecosystems. In the search for alternative methods of describing the
+ behavior of total ecosystems, various computations performed on the
+ underlying network of flows have figured prominently (SCOR, 1981).
+
+          The original impetus for confining analysis to flow structure
+ came from the field of economics, where success in elucidating indirect
+ economic effects had been achieved by manipulations on matrices of
+ economic flows (Leontief, 1959; Hannon, 1973).  Thereafter followed a
+ number of other topological treatments of the underlying flow graph (e.g.,
+ Finn, 1976; Levine, 1980; Patten et al., 1976; Ulanowicz and Kemp, 1979).
+ My intention in writing these subroutines has been to collect the various
+ algorithms into a single large program which allows an investigator to
+ choose that analysis which best serves his needs.  It is also hoped that
+ by comparing the results of different methods (sometimes operating at
+ different levels of aggregation) new insights will appear which would not
+ have been possible by confining one's attention to a single approach.
+
+           Four types of analyses are performed by this routine.  First,
+ input-output structure matrices are calculated, allowing one to look in
+ detail at the effects any particular flow or transformation might have on
+ any other given species or flow.  Next, the graph is mapped into a
+ concatonated trophic chain (after Lindeman).  Then global variables
+ describing the state of development of the network are presented.
+ Finally, all the simple, directed biogeochemical cycles are identified
+ and separated from their supporting dissipative flows.
+
+           The documentation of the package follows in three sections.
+ First, a description of the data requirements and input format necessary
+ to run the program is given.  This is the minimum one needs to know to run
+ the package.  Then follows a brief description of the meaning of the
+ outputs with appropriate references to aid in a more thorough
+ understanding of the technique.  Finally, the programs (written in ANSI
+ standard FORTRAN IV) are listed with self-documenting comment cards.
+
+      II. Necessary Input
+
+           All of the routines contained herein require data on the entire
+ network of exchanges of a particular medium (energy or some form of
+ matter).  Sometime prior to data collection assumptions had to have been
+ made on how the ecosystem (or other system) was to be aggregated into
+ compartments.  For each compartment it is necessary to know: (1) all the
+ inputs from outside the system, (2) all the various inputs flowing from
+ other compartments of the system, (3) all the outputs which flow as inputs
+ to other compartments, (4) all exports of useful medium outside the
+ system, and (5) all rates of dissipation of medium.  The system need not
+ to be at steady-state (when the sum of all the inputs to each compartment
+ is balanced by the sum of all the outputs from the same compartment),
+ although a diagnostic warning will be printed whenever any compartment
+ does not balance.  Each of the flows can be represented by a positive
+ scalar element of a matrix or a vector; the absence of a flow is
+ represented by a zero.  Negative magnitudes of flow are forbidden and
+ should be recast as positive quantities.  The distinction between useful
+ exports and dissipated respirations is, unfortunately, not made by some
+ authors and collectors of data.  As can be seen from the results, this
+ distinction is an important one and should be made wherever possible.
+
+           A sample of a simple energy flow network is the five compartment
+ ecosystem of Cone Spring (Williams and Crouthamel, unpublished ms and Tilly
+ 1968) as depicted in Figure 1.  The "ground symbols" represent dissipative
+ respirations leaving the system.
+
+  
+                                     > -------
+                                   /  |   2   |---->255
+          300         860   5205 /   /| 116.6 |
+          /\          /\       /   /  `-------' \
+           |           |     /   /1600    |       \75
+           |           |   /   <          =3275     \
+ 11184  -------  8881  -------   2309                 > -------
+ ----->|   1   |----->|   5   |----------------------->|   3   |
+       |  285. |      | 3579.4|<-----------------------|  60.  |
+       `-------'     >`-------'<      200              `-------' 
+           |       /      |      \                    /    |
+           =     /        =        \167         370 /      =
+         2003   635      3109        \            /      1814
+                                       -------  <
+                                      |   4   |
+                                      |  17.  |
+                                      `-------'
+                                          |
+                                          =
+                                         203
+
+ Figure 1 - The network of energy flows in the Cone Spring ecosystem.
+  All flows in kcal/m2/y. Biomasses (decimal figures inside of boxes) are
+  in kcal/m2. Arrows not originating from a box represent exogenous
+  inputs.  All arrows not terminating into a box represent exports of
+  still useable energy. Numbers near ground symbols represent respired
+  (degraded) energy. Intergers inside boxes identify the compartment: 1 =
+  Plants; 2 = Bacteria; 3 = Detritivores; 4 = Carnivores; 5 = Detritus.
+  After Tilly (1968)
+
+          Those not wishing to learn about the details of the input format
+ may use the program DATBAL, which will prompt the user for free-format data.
+ These data are then written on to a file in the exact format required by
+ NETWRK. There are numerous checks within DATBAL to ensure that the resulting
+ input file will run smoothly in NETWRK. Furthermore, DATBAL can be used
+ to balance automatically a network that doesn't quite add up.
+
+           The following is the input file corresponding to Figure 1.
+
+ CONE SPRING;  WILLIAMS & CROUTHAMEL (PATTEN VOL 1); KC/M-2/YR                 2
+   5  4
+ PLANTS
+ BACTERIA
+ DETRITUS FEEDERS
+ CARNIVORES
+ DETRITUS
+   1 285.
+   2 116.6
+   3 60.
+   4 17.
+   5 357.4
+  -1 0.
+   1 11184.
+   5 635.
+  -1 0.
+   1 300.
+   2 255.
+   5 860.
+  -1 0.
+   1 2003.
+   2 3275.
+   3 1814.
+   4 203.
+   5 3109.
+  -1 0.
+   1  5 8881.
+   2  3 75.
+   2  5 1600.
+   3  4 370.
+   3  5 200.
+   4  5 167.
+   5  2 5205.
+   5  3 2309.
+  -1 -1 0.
+
+           The first record is a header or title which serves to identify the
+ data and the resultant output.  It is passed on as 78 characters of
+ alpha-numeric data (19A4, A2) to the output file.  It may contain any
+ information the user desires.  In this instance a descriptive title, a
+ citation for the data source, and the units of the flows (kilograms of carbon
+ per square meter per year) have been transcribed.  The 2 in column 80
+ signifies that the data is accurate to at least 10-2 units.  (This
+ specification is optional, as described below.)
+
+           The first entry on the second record is the number of
+ compartments in the network.  Call this value N.  Practically everything
+ else is dimensioned by N.  The program as written allows a maximum of 37
+ components in a flow web, although this restriction can be relaxed by
+ straightforward changes in the dimension statements of routines AMAIN,
+ ASCEND AND CYCLE2.  The second entry tells how many of the compartments
+ represent living, producing populations.  It is necessary for the trophic
+ analysis.  The record format is ( I3, I3).
+
+           The network dimension record is followed by N records of
+ alphanumeric titles, each title describing its respective compartment.
+ Compartment descriptors may be up to 25 characters long and are simply
+ transcribed onto the output file for easy reference in interpreting the
+ printout of results.  The ordering of the compartments should be such that
+ the living populations appear first and the non-living compartments are
+ grouped at the end.
+
+           The last compartment name precedes a series of values for the
+ bio-masses of each component. (These values are not used in this package,
+ but are required by most other programs that use the standard SCOR input
+ format.) Each record consists of an integer (I3 format) followed by the
+ value of the stock. (The value is read by the machine in E14.7 format,
+ however one may override this designation during manual input by simply
+ typing the value anywhere in the 14-character field as a decimal number.)
+ After the last biomass has been entered, the end of the series is denoted
+ by a negative integer in the first three spaces.
+
+           The biomasses are followed by the inputs (only two here), and
+ the inputs by the exports of useful medium. The fourth series consists of
+ respirations. As with the biomasses, the end of each vector is signified
+ by a negative value as the species designation. The default value  of any
+ flow is zero, so that zeroes do not need to be entered directly. This
+ affords a great savings in specifying the exchanges that follow the
+ respirations. Here two integers (I3,I3) are used to define the donor and
+ recipient compartments of each exchange. The values of each flow
+ immediately follow the recipient designation (default format E14.7, as for
+ the vectors above.) As with the vectors, the end of the exchanges is
+ denoted by a record with a negative integer in the first three columns.
+ Each given exchange will appear in the exchange matrix so that the j-th
+ element of row i represents the flow originating from compartment i and
+ terminating in compartment j. Some authors treating input-output analysis
+ transpose this convention.
+
+           The header record of the next run may immediately follow the end
+ record of the exchanges, or a hard end-of-file may be used to terminate
+ execution. All flow values must be non-negative, or else a diagnostic and
+ termination of the run will result.
+
+           It is often the case that the network under investigation is
+ balanced, but the input data, by virtue of it's finite accuracy (e.g., 2
+ or 3 significant digits), will yield round-off error that the program
+ would interpret as an imbalance.  If one wishes to surpress the spurious
+ warning diagnostic which would result from such round-off error, he should
+ place an integer in column 80 of the header record to signify the expected
+ accuracy of the data.  This integer should be the negative logarithm (base
+ 10) of the least significant digit in the data.  For example, a 2 in
+ column 80 of the header record will ignore any imbalances between 0.01 and
+ -0.01.  Surpression of the spurious diagnostic is optional, as the
+ subsequent calculations will not be affected by the warning
+ diagnostic. Also, one might want to balance the network using DATBAL
+ before proceeding with the analysis, as a network that is seriously out
+ of balance (more than a few percent) will yield incongruous output
+ during the first twi sections of output (the I/O and Trophic
+ Aggregation sections.)
+
+
+      III. Running the Program
+
+           The program is run by typing NETWRK followed by a carriage
+ return.  The machine will then respond by asking for the name of Unit
+ 5.  The user should reply with the name of the input file (such as
+ TEST.DAT supplied with this package. The machine will then ask the user
+ to identify Unit 6 to receive the output. The user may designate a file
+ name (e.g., TEST.OUT) or the designated name of an output device, such
+ as PRN or CON.
+
+      IV. Output of Results
+
+           The output resulting from the sample input file is listed at the
+ end of this section.  It is divided into five segments:
+
+           The initial segment begins with echos of the input data, the
+ header record, the total number of compartments, the number of living
+ compartments, the names of the various compartments both living and non-
+ living, the input vector, export vector, respiration vector and matrix of
+ exchanges.  The throughput of a compartment is the total amount of medium
+ flowing through that compartment.  In input-output analysis it is a
+ measure of the importance of that particular entity.  The sum of these
+ throughputs is called the total system throughput.  It is a flow measure
+ of the total system size.
+
+           The second section of output presents an ecological variation of
+ input-output analysis.  The total contribution coefficients describe
+ exactly what fraction of the total amount leaving compartment i (row
+ designation) eventually enters compartment j (column designation) over all
+ real pathways, direct and indirect.  For example, of all the gross
+ production by compartment 1 (the plants), about 3% eventually enters
+ compartment 4 (the carnivores).  More interestingly, 10.9% of the gross
+ carnivore production winds up in its host, the detritivores (the 3-4
+ entry.)  The rows of the contribution matrix could sum to more than one,
+ whenever the system is not too dissipative and output from a given
+ compartment visits numerous other compartments before exiting the system.
+ Each diagonal entry indicates how much self-stimulation is being effected by
+ that particular compartment.
+
+           The total dependency coefficients portray the inverse to the
+ perspective afforded by the previous matrix.  Namely, the i-jth entry is
+ the fraction of the total ingestion by j which passed through compartment
+ i along its way to j.  Hence, 17.2% of the carnivore diet (4) was mediated
+ by the bacteria (2).  The columns of this matrix are particularly useful
+ in that they portray the extended diet of the species in question.  Thus,
+ although the carnivores (4) receive direct sustenance only from the
+ detritivores (3), we see from column 4 in the dependency matrix that the
+ carnivores are also wholly dependent upon the detritus and derive 93.3% of
+ their ration ultimately from the plants, 17.2% from the bacteria (as noted
+ above), and 1.72% from their own output.  Such indirect rations should
+ provide valuable information to those managing a particular species.
+
+           Hannon (1973), Finn (1976), Levine (1980) and Patten et al.
+ (1976) give various examples of how one may employ input-output analysis.
+ One of the most useful such applications, a decomposition of the graph
+ according to each input, follows the dependency coefficients. The
+ consequences of each non-zero input are displayed.  Not only does this
+ decomposition isolate the effects of the various inputs, but these
+ sub-networks can be linearly recombined to recreate what the effects of
+ any other combination of inputs would be, if the flow structure were
+ kept the same.  (Of course, the structure will probably change, but
+ that does not render the exercise useless.) For example, when 11,184
+ units enter the plants and 635 enter the detritus, 75 units flow from
+ the bacteria to the detritivores.  If instead, 9,000 units entered the
+ plants and 2,000 flowed as input to the detritus from outside the
+ system, then ([9000/11184] x 70.0 + [2000/635] x 5.0 =) 72.1 units
+ would flow from compartment 3 to compartment 4 under the same flow
+ structure.
+
+           The third section interprets the given network according to the
+ trophic concepts of Lindeman (1942).  Of course, it is impossible to
+ relegate many heterotrophs entirely to a single trophic level, but
+ Ulanowicz and Kemp (1979) indicated how input-output techniques could be
+ used to apportion the activities of omnivores among a series of integer
+ trophic levels.  This method has been expanded to include the effects of
+ biogeochemical cycles by Ulanowicz (1995), and it is that formulation
+ which is implemented in this section.
+
+           In order for the results of this section to be meaningful, it
+ was necessary to have specified the number of compartments that represent
+ living populations, say NL ( < N ), and to have ordered the species so
+ that the N-NL abiotic compartments appeared last in the series.  The
+ trophic aggregation algorithm also requires that no cycles appear entirely
+ among the living compartments.  Pimm (1982) states that such cycles are
+ rare in ecosystem networks, an it is assumed that the magnitude of any
+ such cycles are quantitatively insignificant.
+
+           Here the user may feel uneasy about the requirements stated in
+ the previous paragraph.  It often happens that given networks do contain
+ several small cycles among the heterotrophs.  In that case the program
+ will act at this point to remove such cycles using an abbreviated form of
+ the algorithm and print format described below in the next section of
+ output on cycles.  The key feature to watch when heterotrophic cycling is
+ present is whether to make sure that the Finn cycling index for
+ heterotrophic cycling (see below) is sufficiently small -- below two
+ percent or so.
+
+           If the number of living compartments (NL) is not given in the
+ input, then a default value of N is assumed, i.e., everything is alive.
+ In this event, all the cycles will be removed, and the entire trophic
+ analysis will be conducted on the acyclic residual network.  The user is
+ urged to make the distinction between living and abiotic compartments!
+ A program called REORDER is available from the author that will reorder
+ the data to put the nonliving components last.
+
+	   (In many networks inputs of some species do not represent primary
+ productions, but immigrations instead. Version 4.2 attempts to distinguish
+ between these two types of inputs and treat them differently during the
+ Lindeman analysis. The user will be warned immediately if any inputs are to
+ be considered migratory in nature. Also, all real ecosystems have at least
+ one obligate primary producer. If no obligate primary producer can be found,
+ the user will be warned of this circumstance and the necessary assumption
+ that all inputs represent primary productions.)
+
+           The first item to appear in this section is the Lindeman
+ transformation matrix.  It has dimension NL x NL and may contain rows of
+ zeros towards the bottom of the matrix.  Its columns represent the
+ apportionment of the corresponding species among the integer trophic
+ levels.  Hence, the carnivores have been assigned approximatley 97% to
+ trophic level 3 and 3% to level 4.  The columns of this matrix should
+ always sum to one.  Reading accross a row gives the composition of a
+ trophic level.  Whence, trophic level 3 consists of 3% of the detritivore
+ activity and 97% of the carnivore activity.  All abiotic activity is
+ condensed into the Nth compartment and assigned a trophic level of one.
+
+           When the figures in each column of the transformation matrix are
+ weighted by the value of the trophic level and the results are summed, one
+ arrives at the effective trophic level for that species.  These trophic
+ position values have been defined by Levine (1980) as a measure of the
+ average trophic level at which the compartment is receiving medium.  For
+ example, if a species or compartment is receiving 15 units of medium along
+ a pathway of length 2 and 5 units along a pathway of length 3, then it is
+ acting 75% as a herbivore (trophic level=2) and 25% as a carnivore
+ (level=3).  The effective trophic position becomes (.75 x 2)+(.25 x
+ 3)=1.75.  The average trophic levels in the Cone Spring network are rather
+ unexciting, but the same analysis on more complex networks often yields
+ interesting surprizes.
+
+           The "canonical" exports and respirations are the amounts leaving
+ the system from the integer trophic levels. (Whenever migratory inflows are
+ present, these will be preceeded by a vector of "canonical inputs" showing
+ how the various inputs are distributed over the resulting Lindeman chain.)
+ Again, the Nth or last compartment represents the aggregated detrital pool.
+ The elements of the grazing chain represent the inputs to each integer
+ trophic level from the preceeding level.  (The first value is the aggregate
+ of the exogenous inputs.  The second entry represents herbivorous grazing,
+ of which none is present in the Cone Spring model.)  The returns from each
+ level of the trophic chain to the detrital pool are listed in the next
+ vector.  Detritivory refers to the flow from the detrital pool to the second
+ trophic level.  The ratio of this value to that for herbivorous grazing
+ (second entry in the grazing chain) usually measures the relative importance
+ of recycle to the community.  Although recycle constitutes less than 10% of
+ the total activity in Cone Spring, its dominance over herbivorous grazing
+ makes it all-important to the existence of the higher trophic levels.
+
+           The exogenous inputs to the detrital pool total 635 units in
+ Cone Spring, and there is no internal circulation within the pool.  (Any
+ positive value here would be represented by a "self loop" on the detrital
+ compartment.)  The configuration of the data presented thus far can be
+ depicted as in Figure 2.
+
+
+        300            255
+         /\             /\ 
+          |              | 
+ 11180 .-----.        .-----.  433   .-----. 11.6   .-----.
+ ----->|  I  |        |  II |------->| III |------->|  IV |
+      /`-----'       >`-----'\       `-----'\       `-----'\
+     /    |   7514 /     |     \1790    |     \168     |     \5.3
+  8880    =      /       =      |       =      |       =      | 
+     _\| 2000  /       5030     |      254     |      6.4     |
+       .----- /                 |              |              |
+ ----->|  D  |<-----------------'--------------'--------------'
+  635  `-----'\      1963
+          |   _\|
+          =      860
+         3110
+
+ Figure 2 - The Cone Spring energy flow network (Fig. 1) aggregated into
+  four discrete trophic levels and feedback to detritus. All flows in
+  kcal/m2/y. 
+
+
+           That the grazing chain for Cone Spring was not a monotonically
+ decreasing series can be ascribed to the effects of recycle.  However,
+ when the detrital pool is merged with the autotrophs, the resultant
+ "Lindeman spine" necessarily will form a decreasing sequence of flows. One
+ can speak of trophic efficiency as the ratio of the input to a trophic
+ level to the amount that level passes on to the next.  Thus, of the 7,510
+ units entering level 2, only 433 are passed on to level 3, a 5.8% trophic
+ efficiency.  The trophic representation of Cone Spring after the merger of
+ the autotrophs with the detrital pool is shown in Figure 3.
+
+
+            1160            255
+             /\             /\ 
+              |              | 
+   11815   .-----. 7514   .-----.  433   .-----.  11.6  .-----.
+ --------->| I+D |------->|  II |------->| III |------->|  IV |
+   ------->`-----'\       `-----'\       `-----'\       `-----'\
+  | 1963      |    \8880     |    \1790    |     \168     |     \5.3
+  |           =     |        =     |       =      |       =      |
+  |         5110    |      5030    |      254     |      6.4     |
+  |                 |              |              |              |
+  `-----------------'--------------'--------------'--------------'
+       
+ Figure 3 - Trophic configuration in Figure 2 with compartments I & D
+  aggregated to yield a true trophic "pyramid" of monotonically
+  descending transfers along the "Lindeman spine". Recycle and exogenous
+  losses included to depict conservation of energy around each trophic
+  level. All flows in kcal/m2/y.
+
+
+           The next short segment of output provides values for global
+ attributes of the network as defined by the writer in his theory of
+ pattern development (Ulanowicz, 1980,1986; Hirata and Ulanowicz, 1984;
+ Ulanowicz and Norden, 1990). The total system throughput has already
+ been defined and serves as a measure of the size of the system. Multi-
+ plying the total throughput by the entropy (according to the Shannon
+ Wiener formula) of the individual flows yields the development capacity.
+ This quantity is an upper bound on the ascendency, a measure of the
+ network's potential for competitive advantage over other real or putative
+ network configurations. Ascendency is the product of a factor of size
+ (total system throughput) times a factor representing the coherence of
+ the flows (the average mutual information of the flow structure.)
+
+           The difference between the realized structure and its upper
+ bound is the overhead (Ulanowicz, 1988) and occurs for any of four re-
+ sons -- there is overhead due to uncertainty about imports, exports
+ and dissipations (respirations), and the flows are proceeding
+ along parallel pathways (redundancy.) The fractions of the
+ development capacity encumbered by each of its five components are given
+ in parentheses following the values. 
+
+           The foregoing indices were descriptors of the entire system.
+ Ulanowicz (1986; also Hirata and Ulanowicz, 1984) shows how growth and
+ development in networks are best characterized by components of the
+ internal capacity (as calculated over only internal exchanges.) There
+ are two -- the internal ascendency and the internal redundancy.
+
+           Finally, these global indices are recast so as to describe 
+ the effective number of connections between any two arbitrary 
+ compartments. The overall connectance includes the effects of exogenous 
+ transfers, while the intercompartmental value characterizes only the 
+ endogenous exchanges. The foodweb connectance pertains only to transfers 
+ among the living compartments (Ulanowicz, in press.)
+
+           Most ecosystem graphs contain bigeochemcial cycles of material
+ or energy, and the structure of these cycles is fully described by the
+ fifth section of the output.  First to appear is an enumeration of all
+ the simple cycles in the given exchange matrix (only 5 in this case).
+ Furthermore, the simple cycles are grouped into "nexuses" of cycles which
+ share the same "weak arc." A weak arc is defined here as the smallest flow
+ in a given directed cycle.  The assumption is that the weak arc is the
+ limiting or controlling link in a cycle, and that by grouping according to
+ weak arc, one defines the domain of influence of each weak arc.
+ Presumably, a change in any weak arc flow will propagate throughout the
+ associated nexus.  The nexuses are always listed in ascending order of the
+ magnitude of the weak arc (the identity and magnitude of which is printed
+ as a header to each nexus).  The order of the cycles within any nexus is
+ of no particular significance, but corresponds to the order in which the
+ cycles were identified by the routine CYCLE2.  The number of cycles in the
+ sample network is quite sparse, and the grouping by weak arc is almost
+ trivial. However, the user will soon discover that in networks of only
+ slightly more complexity the total number of cycles mushrooms, and the
+ number of cycles in a typical nexus increases accordingly.
+
+           After being listed, the cycles are subtracted from the graph in
+ a fashion which is described in detail by Ulanowicz (1983).  Briefly, the
+ flows contributing to the smallest weak arc are distributed over the flows
+ in the nexus defined by that particular weak arc, and all the arcs of that
+ nexus are subtracted from the graph.  This process does not disturb the
+ balance around any compartment, nor does it change any exogenous input,
+ export or respiration associated with any compartment. The weak arc itself
+ will be eliminated from  the graph, but none of the remaining arcs of the
+ nexus will be driven negative.  After a nexus has been removed, the next
+ smallest weak arc is located; and nexuses are subtracted iteratively until
+ all cycles have been removed.
+
+           As a cycle with m links is removed from the graph, the flow
+ associated with that cycle is accumulated in the m-th component of an n-
+ dimensional array. This cycle distribution array, therefore, shows how
+ much flow is cycling in loops of various sizes.  Such a profile might be
+ useful in assessing system response to perturbation; for example, where
+ cycling via larger loops might be more sensitive to disturbance.  When the
+ cycle distribution is normalized by the total system throughput, the
+ result is the normalized distribution.  Summing the normalized
+ distribution yields the Finn cycling index, or the fraction of all the
+ flow in the system which is being cycled (Finn, 1976).
+
+           The results of subtracting all the cycled flow from the exchange
+ matrix are reported as the residual exchanges, or straight-through
+ (acyclic) flows listed after the Finn index.  This residual exchange
+ matrix can be used along with the original inputs, exports and
+ respirations (which were unaffected by the cycle extraction technique) to
+ construct the total graph of acyclic flows.
+
+           The last output pertaining to the cycle structure is the matrix
+ of aggregated biogeochemical cycles.  The corresponding row sums and
+ column sums of this matrix will always balance; no further reference to
+ exogenous exchanges is necessary.  When depicted as a network the
+ aggregated cycles form one (or more) closed nexus(es).  The visual
+ structure of this network when computed from more complicated input arrays
+ very often reveals the domains of control in the network.  It should be
+ noted that the starting network has been decomposed into an acyclic "tree"
+ of dissipative flows and a wholly conservative nexus of cycled flows.
+
+           The output has been formatted for 80-column printers.  If
+ desired, appropriate changes can be made in the routines AMAIN, CYCLES,
+ MATPRT and VECPRT to extend or compress the results.
+
+                           (Begin output listing)
+ 
+ CONE SPRING;  WILLIAMS & CROUTHAMEL (PATTEN VOL 1); KC/M-2/YR                 
+ 
+ NUMBER OF COMPARTMENTS IS    5
+ NUMBER OF LIVING COMPARTMENTS IS   4
+ 
+ LIVING COMPARTMENTS
+ 
+  1  PLANTS                   
+  2  BACTERIA                 
+  3  DETRITUS FEEDERS         
+  4  CARNIVORES               
+ 
+ NON-LIVING COMPARTMENTS
+ 
+  5  DETRITUS                 
+ 
+ INPUT VECTOR
+ 
+ 
+           1        2        3        4        5   
+       .112E+05 .000E+00 .000E+00 .000E+00 .635E+03
+ 
+ 
+ EXPORT VECTOR
+ 
+ 
+           1        2        3        4        5   
+       .300E+03 .255E+03 .000E+00 .000E+00 .860E+03
+ 
+ 
+ RESPIRATION VECTOR
+ 
+ 
+           1        2        3        4        5   
+       .200E+04 .328E+04 .181E+04 .203E+03 .311E+04
+ 
+ 
+ EXCHANGE MATRIX
+ 
+ 
+           1        2        3        4        5   
+   1   .000E+00 .000E+00 .000E+00 .000E+00 .888E+04
+   2   .000E+00 .000E+00 .750E+02 .000E+00 .160E+04
+   3   .000E+00 .000E+00 .000E+00 .370E+03 .200E+03
+   4   .000E+00 .000E+00 .000E+00 .000E+00 .167E+03
+   5   .000E+00 .521E+04 .231E+04 .000E+00 .000E+00
+ 
+ 
+ COMPARTMENTAL THROUGHPUTS
+ 
+ 
+           1        2        3        4        5   
+       .112E+05 .521E+04 .238E+04 .370E+03 .115E+05
+ 
+ 
+ 
+ 
+                           *** STRUCTURE ANALYSES ***
+ 
+ TOTAL CONTRIBUTION COEFFICIENTS
+ 
+ 
+ 
+           1        2        3        4        5   
+   1   .000E+00 .371E+00 .192E+00 .303E-01 .794E+00
+   2   .000E+00 .145E+00 .886E-01 .140E-01 .310E+00
+   3   .000E+00 .720E-01 .371E-01 .158E+00 .154E+00
+   4   .000E+00 .211E+00 .109E+00 .172E-01 .451E+00
+   5   .000E+00 .468E+00 .241E+00 .382E-01 .171E+00
+ 
+ 
+ TOTAL DEPENDENCY COEFFICIENTS
+ 
+ 
+ 
+           1        2        3        4        5   
+   1   .000E+00 .933E+00 .933E+00 .933E+00 .933E+00
+   2   .000E+00 .145E+00 .172E+00 .172E+00 .145E+00
+   3   .000E+00 .371E-01 .371E-01 .100E+01 .371E-01
+   4   .000E+00 .172E-01 .172E-01 .172E-01 .172E-01
+   5   .000E+00 .100E+01 .100E+01 .100E+01 .171E+00
+ 
+ 
+ 
+ ANALYSIS OF INPUT  1
+ 
+ 
+ INPUT VECTOR
+ 
+ 
+           1        2        3        4        5   
+       .112E+05 .000E+00 .000E+00 .000E+00 .000E+00
+ 
+ 
+ EXPORT VECTOR
+ 
+ 
+           1        2        3        4        5   
+       .300E+03 .238E+03 .000E+00 .000E+00 .803E+03
+ 
+ 
+ RESPIRATIONS
+ 
+ 
+           1        2        3        4        5   
+       .200E+04 .306E+04 .169E+04 .189E+03 .290E+04
+ 
+ 
+ EXCHANGE MATRIX
+ 
+ 
+           1        2        3        4        5   
+   1   .000E+00 .000E+00 .000E+00 .000E+00 .888E+04
+   2   .000E+00 .000E+00 .700E+02 .000E+00 .149E+04
+   3   .000E+00 .000E+00 .000E+00 .345E+03 .187E+03
+   4   .000E+00 .000E+00 .000E+00 .000E+00 .156E+03
+   5   .000E+00 .486E+04 .215E+04 .000E+00 .000E+00
+ 
+ 
+ 
+ ANALYSIS OF INPUT  5
+ 
+ 
+ INPUT VECTOR
+ 
+ 
+           1        2        3        4        5   
+       .000E+00 .000E+00 .000E+00 .000E+00 .635E+03
+ 
+ 
+ EXPORT VECTOR
+ 
+ 
+           1        2        3        4        5   
+       .000E+00 .170E+02 .000E+00 .000E+00 .574E+02
+ 
+ 
+ RESPIRATIONS
+ 
+ 
+           1        2        3        4        5   
+       .000E+00 .219E+03 .121E+03 .135E+02 .207E+03
+ 
+ 
+ EXCHANGE MATRIX
+ 
+ 
+           1        2        3        4        5   
+   1   .000E+00 .000E+00 .000E+00 .000E+00 .000E+00
+   2   .000E+00 .000E+00 .500E+01 .000E+00 .107E+03
+   3   .000E+00 .000E+00 .000E+00 .247E+02 .133E+02
+   4   .000E+00 .000E+00 .000E+00 .000E+00 .111E+02
+   5   .000E+00 .347E+03 .154E+03 .000E+00 .000E+00
+ 
+ 
+ 
+                         SEARCH FOR FEEDING CYCLES
+ 
+ 
+               NO CYCLES DETECTED
+ 
+ 
+ 
+                    *** LINDEMAN TROPHIC AGGREGATIONS ***
+ 
+ LINDEMAN TRANSFORMATION MATRIX
+ 
+ 
+           1        2        3        4   
+   1   .100E+01 .000E+00 .000E+00 .000E+00
+   2   .000E+00 .100E+01 .969E+00 .000E+00
+   3   .000E+00 .000E+00 .315E-01 .969E+00
+   4   .000E+00 .000E+00 .000E+00 .315E-01
+ 
+ 
+ EFFECTIVE TROPHIC LEVELS OF EACH SPECIES
+ 
+ 
+           1        2        3        4        5   
+       .100E+01 .200E+01 .203E+01 .303E+01 .100E+01
+ 
+ 
+ CANONICAL EXPORTS
+ 
+ 
+           1        2        3        4        5   
+       .300E+03 .255E+03 .000E+00 .000E+00 .860E+03
+ 
+ 
+ CANONICAL RESPIRATIONS
+ 
+ 
+           1        2        3        4        5   
+       .200E+04 .503E+04 .254E+03 .639E+01 .311E+04
+ 
+ 
+ THE GRAZING CHAIN
+ 
+ 
+           1        2        3        4   
+       .112E+05 .000E+00 .433E+03 .116E+02
+ 
+ 
+ RETURNS TO DETRITAL POOL
+ 
+ 
+           1        2        3        4   
+       .888E+04 .179E+04 .168E+03 .525E+01
+ 
+ 
+ DETRITIVORY =   .75140E+04
+ 
+ INPUT TO DETRITAL POOL =   .63500E+03
+ 
+ CIRCULATION WITHIN DETRITAL POOL =   .00000E+00
+ 
+ LINDEMAN SPINE
+ 
+ 
+           1        2        3        4   
+       .138E+05 .751E+04 .433E+03 .116E+02
+ 
+ 
+ TROPHIC EFFICIENCIES
+ 
+ 
+           1        2        3        4   
+       .545E+00 .577E-01 .269E-01 .000E+00
+ 
+ 
+ 
+ 
+                          *** INFORMATION INDICIES ***
+ 
+  TOTAL SYSTEM THROUGHPUT =  .42445E+05
+ 
+ 
+  DEVELOPMENT CAPACITY =  .13586E+06
+ 
+  ASCENDENCY =  .56725E+05     (.418)
+ 
+  OVERHEAD ON IMPORTS =  .62218E+04     (.046)
+ 
+  OVERHEAD ON EXPORTS =  .78108E+04     (.057)
+ 
+  DISSIPATIVE OVERHEAD =  .35274E+05     (.260)
+ 
+  REDUNDANCY = .29832E+05     (.220)
+ 
+ 
+  INTERNAL CAPACITY = .59164E+05
+ 
+  INTERNAL ASCENDENCY = .29332E+05     (.496)
+ 
+  REDUNDANCY =  .29832E+05     (.504)
+ 
+ 
+                           *** CONNECTANCE INDICES ***
+ 
+  OVERALL CONNECTANCE =   1.841
+ 
+  INTERCOMPERTMENTAL CONNECTANCE =   1.375
+ 
+  FOODWEB CONNECTANCE =   1.000
+ 
+ 
+ 
+ 
+ 
+                         *** FULL CYCLE ANALYSIS ***
+ 
+        1.  2- 3- 5- 2-
+        2.  2- 3- 4- 5- 2-
+  NEXUS     1 CONSISTS OF        2 CYCLES. WEAK ARC (  2,  3) =  .7500E+02
+ 
+        3.  4- 5- 3- 4-
+  NEXUS     2 CONSISTS OF        1 CYCLES. WEAK ARC (  4,  5) =  .1670E+03
+ 
+        4.  3- 5- 3-
+  NEXUS     3 CONSISTS OF        1 CYCLES. WEAK ARC (  3,  5) =  .2000E+03
+ 
+        5.  2- 5- 2-
+  NEXUS     4 CONSISTS OF        1 CYCLES. WEAK ARC (  2,  5) =  .1600E+04
+ 
+ 
+  A TOTAL OF        5 CYCLES REMOVED.
+ 
+ 
+ 
+ CYCLE DISTRIBUTIONS
+ 
+ 
+           1        2        3        4        5   
+       .000E+00 .352E+04 .521E+03 .137E+03 .000E+00
+ 
+ 
+ NORMALIZED DISTRIBUTION
+ 
+ 
+           1        2        3        4        5   
+       .000E+00 .829E-01 .123E-01 .322E-02 .000E+00
+ 
+ 
+ 
+ FINN CYCLING INDEX IS   .9839E-01
+ 
+ 
+ RESIDUAL FLOWS
+ 
+ 
+           1        2        3        4        5   
+   1   .000E+00 .000E+00 .000E+00 .000E+00 .888E+04
+   2   .000E+00 .000E+00 .000E+00 .000E+00 .000E+00
+   3   .000E+00 .000E+00 .000E+00 .203E+03 .000E+00
+   4   .000E+00 .000E+00 .000E+00 .000E+00 .000E+00
+   5   .000E+00 .353E+04 .202E+04 .000E+00 .000E+00
+ 
+ 
+ AGGREGATED CYCLES
+ 
+ 
+           1        2        3        4        5   
+   1   .000E+00 .000E+00 .000E+00 .000E+00 .000E+00
+   2   .000E+00 .000E+00 .750E+02 .000E+00 .160E+04
+   3   .000E+00 .000E+00 .000E+00 .167E+03 .200E+03
+   4   .000E+00 .000E+00 .000E+00 .000E+00 .167E+03
+   5   .000E+00 .168E+04 .292E+03 .000E+00 .000E+00
+ 
+
+       V. Program Listings
+
+           The programs listed in file NETWRK.FOR and are reasonably self-
+ documenting.  The matrix calculations in the first half of MAIN pertain
+ to input-output analysis and are discussed in Hannon (1973), Finn (1976),
+ Patten et al. (1976) and Szyrmer and Ulanowicz (1987).  The trophic
+ aggregation procedures in the second half of AMAIN are found in Ulanowicz
+ and Kemp (1979) and, more recently in Ulanowicz (1995).  The computation
+ of the information variables in ASCEND is based on Ulanowicz (1980),
+ Hirata and Ulanowicz (1984) and Rutledge et al. (1976).  The basic
+ workings of CYCLE2 are described in Ulanowicz (1983) and later in
+ Ulanowicz (1995). (See also notes at the end of this documentation.)
+ The actual backtracking method used to enumerate the cycles is akin to
+ that described by Johnson (1975).
+
+           The algorithms are all dimensioned to handle 37 compartments.
+ This may be altered by changing appropriate parameter and/or dimension
+ statements in MAIN, ASCEND, and CYCLE2.
+
+           The user should test his/her copy of NETWRK to see if it will
+ run properly. Place the diskette into the appropriate drive and type
+ NETWRK. The machine will load the program and then query the user for
+ the input file to serve as unit 5. The reader may reply with the test
+ data file, TEST.DAT. Then the machine will ask where it should route the
+ output (unit 6). The user can respond with CON (screen), PRN (printer)
+ or provide the name of a file to receive the output. The output should
+ correspond to that provided in this document.
+
+           Copies of the programs can be obtained via electronic mail
+ (ulan@cbl.cees.edu) or on diskette by contacting the author.
+
+           The author invites comments and critiques from all program
+ users.
+
+                              Acknowledgements
+
+           The programs described herein were produced under a grant from
+ the National Science Foundation Program for Systems Theory and Operations
+ Research (ECS-8110035).  The Computer Science Center of the University of
+ Maryland provided free computer time during the early stages of the
+ development of these programs.  The author gladly acknowledges the help of
+ Drs. Alan J. Goldman, who pointed out references key to the development of
+ the CYCLE2 subroutine, William Silvert, who suggested the manner for
+ apportioning flow among the cycles of a nexus, James Kay, who was of
+ considerable help in debugging the routines, and Jeffrey Norden, who
+ suggested a symmetric form for the systems overhead.
+
+                                 REFERENCES
+
+Finn, J.T.  1976.  Measures of ecosystem structure and function derived
+   from analysis of flows.  J. theor. Biol. 56:363-380.
+
+Hannon, B.  1973.  The structure of ecosystems.  J. theor. Biol.
+   83:195-207.
+
+Hirata, H. and R.E. Ulanowicz.  1984.  Information theoretical analysis
+   of ecological networks.  Int. J. Systems Sci. 15(3):261-270.
+
+Johnson, D.B.  1975.  Finding all the elementary circuits of a
+   directed graph.  SIAM J. Comput. 4:77-84.
+
+Leontief, W.  1951.  The Structure of the American Economy, 1919-1939.
+   2nd edn.  Oxford University Press, New York.
+
+Levine, S.H.  1980.  Several measures of trophic structure applicable
+   to complex food webs.  J. theor. Biol. 83:195-207.
+
+Lindeman, R.L. 1942.  The trophic-dynamic aspect of ecology.  Ecology
+   23:399-418.
+
+Patten, B.C., R.W. Bosserman, J.T. Finn and W.G. Cale.  1976.
+   Propagation of cause in ecosystems.  Pages 457-479 in B.C. Patten, ed.
+   Systems Analysis and Simulation in Ecology.  Vol. 4.  Academic Press,
+   New York.
+
+Pimm, S.L. 1982. Food Webs. Chapman and Hall, London. 219p.
+
+Rutledge, R.W., B.L. Basore and R.J. Mulholland.  1976.  Ecological
+   stability: an information theory viewpoint.  J. theor. Biol. 57:355-371.
+
+SCOR.  1981.  Mathematical Models in Biological Oceanography.  T. Platt,
+   K.H. Mann, and R.E. Ulanowicz, eds. UNESCO Press, Paris.
+
+Szyrmer, J. and R.E. Ulanowicz. 1987. Total flows in ecosystems.
+   Ecological Modelling 35:123-136.
+
+Tilly, L.J. 1968. The structure and dynamics of Cone Spring. Ecol.
+   Monogr. 38:169-197.
+ 
+Ulanowicz, R.E.  1980.  An hypothesis on the development of natural
+   communities.  J. theor. Biol. 85:223-245.
+
+-----.  1983.  Identifying the structure of cycling in ecosystems.
+   Mathematical Biosciences 65:219-237.
+
+-----.  1986.  Growth and Development: Ecosystems Phenomenology.
+   Springer-Verlag, New York. 203p.
+
+-----.  1995. Ecosystem trophic foundations: Lindeman exonerata.
+   pp. 549-560 in B.C. Patten and S. Jorgensen (eds.) Complex Ecology:
+   The Part-Whole Relation in Ecosystems.  Prentice-Hall, Englewood
+   Cliffs, New Jersey.
+
+----- and W.M. Kemp.  1979.  Toward canonical trophic aggregations.
+   Am. Nat.114:871-883.
+
+ ----- and J.S. Norden. 1990. Symmetrical overhead in flow networks. 
+   Int. J. Systems Sci. 21:429-437.
+
+--------------------------------------------------------------------------
+
+ Changes in Version 4.2: (03/04/98)
+
+ 	(1) Feedback from users indicated that the weak link in NETWRK was
+ the cycle identification routine. Specifically, storage was often exceeded,
+ as networks frequently had several thousand cycles or more imbedded in them.
+ Since the beginnings of NETWRK, CPU speed has increased dramatically. This
+ allows one to rewrite the old subroutine, CYCLES, as a new version, CYCLE2,
+ which trades the need for storage for more computation.
+
+	In CYCLES it had been necessary to store all the cycles at
+ once. In CYCLE2 the need for such storage has been traded for the
+ additional run time it takes to successively execute the backtracking
+ routine. Networks with a hundred thousand or so cycles can now be
+ handled in a matter of minutes on a 133 MHz CPU. When many cycles are
+ present, some indication that the program is counting cycles will
+ occasionally be printed out on the terminal screen to reassure the user
+ that the program has not bound up. Not too much significance should be
+ accorded to these counts.
+
+	The cycles routine now comes last in the program, in case too
+ many cycles are present (e.g. a billion or so.) If the user is forced
+ to cut shout execution, all the other results will have already been
+ printed out.
+
+	Also, in earlier versions of NETWRK, any cycles wholly among
+ the feeding compartments were removed before the Trophic Aggregation
+ section. The final application of the cycles routine was conducted on
+ this slightly altered network. In 4.2 the cycle analysis is executed on
+ the original network.
+
+	(2) Earlier versions of NETWRK treated all inflows as primary
+ productions. Some reported inputs, however, represent immigrations. Treating
+ immigrations as primary productions artificially deflated the trophic ranks
+ of many species. Version 4.2 now tags inflows that appear to be
+ immigrations, and keeps these inflows from affecting the calculation of the
+ Lindeman transformation matrix. Proper account is kept, however, in a vector
+ of "canonical inputs" of the levels at which these migratory flows enter the
+ system.
+
+	(3) Finally, some users had indicated that they did not use the
+ (sometimes massive) output detailling the decomposition of inputs.
+ Further queries revealed that the outputs might be used more
+ frequently, if the network were decomposed according to the actual
+ inputs, instead of unit inputs, as advocated by Patten. This way, one
+ can read directly from the output exactly how much of each flow can be
+ attributed to any particular input.
+
+ Changes in Version 4.2a: (03/31/99)
+
+	(1) The Lindeman trophic analysis is complicated whenever all species
+ are found to be "migratory", i.e., whenever no obligate primary producers
+ can be found. The user is warned when this situation is encountered, and
+ previous mistakes in calculations under these conditions were corrected.
+
+ Changes in Version 4.2b: (02/14/02)
+
+        (1) The method of removing nexuses from the network was radically
+ changed. No longer is it necessary to count all cycles before the smallest
+ weak arc can be identified. Instead, the smallest weak arc is located and
+ that particular nexus is immediately stripped from the web. When the number
+ of cycles climbs above several hundred thousand, the savings effected by
+ this method become enormous, and run time is drastically reduced.
+
