@@ -1,7 +1,7 @@
-    # Lindeman Trophic Aggregations
-    # Singh P. July 2014.
-    # Source Ulanowicz and Kay 1991. Environmental Software 6:131-142.
-    # ----------------------------------------------------------------------
+### Lindeman Trophic Aggregations
+### Singh P. July 2014.
+### Source Ulanowicz and Kay 1991. Environmental Software 6:131-142.
+### ----------------------------------------------------------------------
 
 troAgg <- function (x, zero.na = TRUE, balance.override = FALSE){
   if (class(x) != "network") {
