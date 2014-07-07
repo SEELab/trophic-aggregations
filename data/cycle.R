@@ -1,0 +1,129 @@
+pavCyc <- function (x) 
+{
+	#####initials####
+if(class(x)!='network') {stop("x is not a network class object")}
+        Ti <- x %v% "input"
+        exp <- x %v% "export"
+        exp[is.na(exp)] <- 0
+        res <- x %v% "respiration"
+        res[is.na(res)] <- 0
+        Tj <- exp + res
+        flow <- x %n% "flow"
+#########################NORMAL NTEMP3 FUNCTION ##########################
+web <- x%n%'flow'
+N = dim(web)[1]
+NFWD <- rep(NULL, N)
+NTEMP <- rep(NULL, N)
+ 
+for (ii in 1:N) {
+    for (i in 1:N) {
+        NFWD[i] <- 0
+        }
+    NFWD[ii] <- 1
+    for (k in 1:(N-1)) {
+       for (i in 1:N) {
+           if(NFWD[i]>0) {next}
+           for (j in 1:N) {
+               if (NFWD[j] <1) {next}
+               if (web[j,i]<=0) {next}
+               NFWD[i] <- 1
+               break
+
+               }
+           }
+        }
+    NTEMP[ii] <- 0 
+    for (i in 1:N) {
+        if ((NFWD[i]>0) && (x[i,ii]>0)) {NTEMP[ii] <- NTEMP[ii]+1}
+        }
+    }
+ntemp1=NTEMP
+NSTP <- NMAX <- JMAX <- 0
+MAP <- rep(0,N)
+for (i in 1:N) {
+    NMAX <- -1
+    for (j in 1:N) {
+        if (NTEMP[j]<=NMAX) {next}
+        NMAX <- NTEMP[j]
+        JMAX=j
+        }
+    if (NMAX >= 0) {NSTP <- NSTP + 1}
+    NTEMP[JMAX] <- -2
+    MAP[i] <- JMAX
+}
+out <- list(NTEMP_no_of_incomingcyclearcs=ntemp1,MAP=MAP)
+return(out)
+#####################################################################################
+                                        # if NSTP = 0 then goto the report of the ovrall result
+                                        # from cycling elements, search for the smallest non-zero arc
+#
+if (NSTP>0) {
+   ARCMIN <- 10^25 #arbitrary min arc
+   for (ir in 1:NSTP) {
+       for (ic in 1:NSTP) {
+           IRTP <- MAP(ir)
+           ICTP <- MAP(ic)
+           if (web[IRTP,ICTP] <= 0) {next}
+           if (web[IRTP,ICTP] >= ARCMIN) {next}
+           ARCMIN <- web(IRTP,ICTP)
+           IMIN <- TRTP
+           IM <- ir
+           JMIN <- ICTP
+           JM <- ic
+       }
+   }
+                                        #we will be treating self loops separately (if IMIN = JMIN)
+   if (IMIN != JMIN) {
+                                        # find nodes that can be reached from JMIN in the forward direction
+      NHALF <- (N/2)+1
+      NFWD <- rep(0,N)
+      NFWD[JMIN] <- 1
+                                        #search pathways upto NHALF links
+      for (k in 1:NHALF) {
+          for (i in 1:N) {
+              if (NFWD[i] >0) {next}
+              for (j in 1:N) {
+                  if (NFWD[j] < 1) {next}
+                  if (web[j,i] <= 0) {next}
+                  NFWD[i] <- 1
+                  break
+              }
+          }
+      }
+                                        #Find nodes that can be reached from IMIN in the backward direction
+      NODE <- rep(0,N)
+      NODE[IMIN] <- 1
+      for (k in 1:NHALF) {
+          for (i in 1:N) {
+              if (NODE[i] > 0) {next}
+              for (j in 1:N) {
+                  if (NODE[j] < 1) {next}
+                  if (web[i,j] <= 0) {next}
+                  NODE[i] <- 1
+                  break
+              }
+          }
+      }
+                                        # Map all nodes common to both searches they will all be members of the nexus defined by
+                                        # web[IMIN,JMIN]
+      NSTP2 <- 0
+      MAP2 <- rep(0,NSTP)
+      for (i in 1:NSTP) {
+          if ((NFWD[MAP[i]] <= 0) | (NODE[MAP[i]] <= 0)) {next}
+          NSTP2 <- NSTP2 + 1
+          MAP2[NSTP2] <- MAP[i]
+      }
+                                        #reorder mapping for IMIN and JMIN to come 1st and 2nd
+      NFWD <- MAP2
+      MAP2[1] <- IMIN
+      MAP2[2] <- JMIN
+      if (NSTP > 0) {
+
+
+
+
+  }
+}
+
+
+}
