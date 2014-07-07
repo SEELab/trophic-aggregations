@@ -103,7 +103,7 @@ troAgg <- function (x, zero.na = TRUE, balance.override = FALSE){
   te[is.na(te)] <- 0
 
 
-  out <- list(A = A, ETL = etl, Cexp = ce1, Cresp = cr1, GrazingChain = gc, ReturnsDetritalPool = rtd, Detrivory = dtry, D_INP = dinp, D_CIR = dcir, Lindeman_Spine = ls,T_eff = te)
+out <- list(A = A[1:nl,1:nl], ETL = etl, Cexp = ce1, Cresp = cr1, GrazingChain = gc, ReturnsDetritalPool = rtd, Detrivory = dtry, D_INP = dinp, D_CIR = dcir, Lindeman_Spine = ls,T_eff = te)
   return(out)
 }
 
