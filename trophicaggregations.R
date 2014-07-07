@@ -1,4 +1,3 @@
-<<<<<<< HEAD
     # Lindeman Trophic Aggregations
     # Singh P. July 2014.
     # Source Ulanowicz and Kay 1991. Environmental Software 6:131-142.
@@ -214,4 +213,4 @@ troAgg <- function (x, zero.na = TRUE, balance.override = FALSE){
   out <- list(A = A, ETL = etl, Cexp = ce1, Cresp = cr1, GrazingChain = gc, ReturnsDetritalPool = rtd, Detrivory = dtry, D_INP = dinp, D_CIR = dcir, Lindeman_Spine = ls,T_eff = te)
   return(out)
 }
->>>>>>> cbe514d775424fac271b1fd5677ea93bd54913f1
+
