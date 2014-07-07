@@ -1,4 +1,9 @@
-function (x, zero.na = TRUE, balance.override = FALSE)
+    # Lindeman Trophic Aggregations
+    # Singh P. July 2014.
+    # Source Ulanowicz and Kay 1991. Environmental Software 6:131-142.
+    # ----------------------------------------------------------------------
+
+enaTrophic <- function (x, zero.na = TRUE, balance.override = FALSE)
 {
 	if (class(x) != "network") {
 		stop("x is not a network class object")
@@ -9,12 +14,12 @@ function (x, zero.na = TRUE, balance.override = FALSE)
     res <- x %v% "respiration"
     res[is.na(res)] <- 0
     n <- length(Ti)
-    liv <- x %v% "living"     ##Living vector
-	nl = sum(liv)             ##Sum of the living nodes
+    liv <- x %v% "living"     ## Living vector
+	nl = sum(liv)             ## Sum gives no. of living nodes
     flow <- x %n% "flow"      ## flow is the flow matrix /EXCHNGE matrix
     T <- Ti + apply(flow, 2, sum) ## Input throughflow vector
     Tinp = matrix(T, ncol=n, nrow=n, byrow='TRUE')
-    GP <- flow[1:n,1:n]/Tinp  ##Input direct flow intensity matrix
+    GP <- flow[1:n,1:n]/Tinp  ## Input direct flow intensity matrix
     if (zero.na) {
             GP[is.na(GP)] <- 0
     }
@@ -24,7 +29,7 @@ function (x, zero.na = TRUE, balance.override = FALSE)
     diag(I) <- 1
     NP <- ginv((I - GP))
 
-    # Lindeman Trophic Aggregations # Singh P. July 2014. Ulanowicz and Kay 1991. Environmental Software 6:131-142.
+
     a = Ti/T          # First Row Vector of Lindeman Transformation Matrix##
     km1 = NULL
     a[is.na(a)] <- 0
