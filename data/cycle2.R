@@ -11,6 +11,7 @@ if(class(x)!='network') {stop("x is not a network class object")}
        N <- length(y)
        TPTS <- apply(web,2,sum) + y
        F <- web/TPTS
+       TST <- sum(TPTS)
        
 ####################################
      #ZERO ALL GLOBAL VARIABLES
@@ -72,7 +73,7 @@ if(class(x)!='network') {stop("x is not a network class object")}
      			for (ir in 1:NSTP) {
      				for (ic in 1:NSTP) {
      					IRTP <- MAP[ir]  # IRTP is the node to be searched at the ir'th position
-     					TCTP <- MAP[ic]  # ICTP ----------------------------------ic'th --------
+     					ICTP <- MAP[ic]  # ICTP ----------------------------------ic'th --------
      					if (web[IRTP,ICTP] <= 0) {next}
      					if (web[IRTP,ICTP] >= ARCMIN) {next}
      					ARCMIN <- web[IRTP,ICTP]
@@ -82,8 +83,10 @@ if(class(x)!='network') {stop("x is not a network class object")}
      					JM <- ic
      				}
      			}
+     			ieqj<-FALSE
      			#Treat Self Loops as Min Arc Separately (LATER)
-     			if (IMIN == JMIN) {ieqj <- TRUE
+     			if (IMIN == JMIN) {
+     				ieqj <- TRUE
      				break} #break the while loop
      			if (IMIN != JMIN) {
      				NHALF <- (N/2)+1
@@ -233,18 +236,71 @@ if(class(x)!='network') {stop("x is not a network class object")}
      			NNEX <- NNEX+1
      			#KTRY <- MOD(NNEX,5000)
      			print(c(NNEX,'Nexus Cycles and Counting'))
-     			NCYC <- NCYC+1     			
+     			NCYC <- NCYC+1
+     			L0 <- LM1+1
+     			for (kk in 1:L0) {
+     				NTMP <- NODE[kk]
+     				NTEMP[kk] <- MAP2[NTMP]
+     			}
+     			print(c(NCYC,'.',NTEMP))
+     			WKARC=F[IMIN,JMIN]*TPTS[IMIN]
+     			NEXNUM=NEXNUM+1
+     			print(c(NEXNUM,'Consists of',NNEX,'cycles','Weak arc:','(',IMIN,JMIN,')=',WKARC))
+     			#After NEXUS has been completed, Normalize the Probability Matrix
+     			#Subtract proper amounts from WEB
+     			PIVOT <- TMP[IMIN,JMIN]
+     			if(PIVOT<=0){print('Error in Normalizing Nexus Weights')}
+     			for(i in 1:N) {
+     				for(j in 1:N) {
+     					if(web[i,j]<=0) {next}
+     				    web[i,j] <- web[i,j]-((TMP[i,j]/PIVOT)*ARCMIN)
+     				}
+     			}
+     			#Add proper amounts to the cycle distributions
+     			for(i in 1:N){CYCS[i]<-CYCS[i]+((TCYCS[i]/PIVOT)*ARCMIN)}
+     			#Zero this weak arc before proceeding 
+     			web[IMIN,JMIN] <- 0
+     			NFST <- 1
+     			if(WHOLE>1.00001) {print(c('Bad Sum Check = ',WHOLE))}
+     			
      			
      		}### end of if (ieqj==false)##
-                                        
-
-     			
-     		
-     	
-     	
-       } #End of IF (NSTP>0)	
+     		else {
+     			NCYC <- NCYC+1
+     			NNEX <- NNEX+1
+     			CYCS[1]<- CYCS[1]+web[IMIN,JMIN]
+     			WKARC<-F[IMIN,JMIN]*TPTS[IMIN]
+     			print(c(NCYC,'.','(',IMIN,JMIN,')'))
+     			web[IMIN,JMIN] <- 0
+     			NEXNUM <- NEXNUM+1
+     			print(c(NEXNUM,'Consists of',NNEX,'cycles','Weak arc:','(',IMIN,JMIN,')=',WKARC))
+     			NFST <- 1    			
+     		}
+     		break()    	
+       } #End of IF (NSTP>0)
+       else {break}	
      }#Endof LOCAL VARIABLES REPEAT ## Use for goto130
+     # Report the Overall Results
+     # FIRST, UNCOVER ANY LINKS "HIDDEN" DURING SEARCH.
+     web=abs(web)
+     if(NFST!=0) {
+     	print(c('A total of ',NCYC,'Cycles removed'))
+     	print('Cycle Distributions')
+     	print(CYCS)
+     	cycs<-CYCS
+     	CYC  <- sum(CYCS)
+     	CYCS <- CYCS/TST
+     	print('Normalized Distribution')
+     	print(CYCS)
+     	TEMP <- CYC/TST
+     	print(c('cycling index is',TEMP))
+     	out <- list(CycleDist = cycs, NormDist=CYCS, CycleIndex = TEMP, WEB=web)
+     	return(out)
+     }
+     else {print('No Cycles Detected')}
      
      
      
-}END OF FUNCTION Cycle2
+     
+     
+}#END OF FUNCTION Cycle2
