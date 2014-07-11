@@ -147,14 +147,16 @@ if(class(x)!='network') {stop("x is not a network class object")}
      		if(ieqj == FALSE) {
      			# Whole is used to check the probability normalization process
      			WHOLE <- 0
-     			
+     			#--------------------------------------------------------
      			##############NETWORK BACKTRACKING ROUTINE################
+     			#--------------------------------------------------------
      			  # Define NODE. NODE and web come from the previous part of the program
      			  # INITIALIZE STARTING NODE AND LEVEL
      			  LEVEL   <- 2
      			  NODE[1] <- 1
      			  NODE[2] <- 2
      			  prev.chk <- lev.chk <- FALSE
+     			  repeat { #Call this the GiantRepeat
      			  repeat { #call it Repeat
      			  	#Advance to next levels 
      			  	#400#          
@@ -208,6 +210,9 @@ if(class(x)!='network') {stop("x is not a network class object")}
   	               	if(lev.chk==TRUE) {break}
   	               	if(comp.chk == TRUE) {break} #NORMAL EXIT FROM Repeat #CYCLE COMPLETE
   	               } #End of Repeat
+  	               if(lev.chk==TRUE) {break} #break from Giant Repeat
+  	               
+  	           ##########################################################    
   	               #END OF BACKTRACKING ROUTINE
 
      			##########################################################
@@ -243,6 +248,7 @@ if(class(x)!='network') {stop("x is not a network class object")}
      				NTEMP[kk] <- MAP2[NTMP]
      			}
      			print(c(NCYC,'.',NTEMP))
+     			} #SHOULD BE THE END OF Giantrepeat
      			WKARC=F[IMIN,JMIN]*TPTS[IMIN]
      			NEXNUM=NEXNUM+1
      			print(c(NEXNUM,'Consists of',NNEX,'cycles','Weak arc:','(',IMIN,JMIN,')=',WKARC))
