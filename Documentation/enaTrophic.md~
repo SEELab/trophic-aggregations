@@ -1,0 +1,19 @@
+Trophic Aggregations
+====================
+
+The function **enaTrophic** in enaR gives the results of the trophic aggregations corresponding to the Ulanowicz school which interprets the given Model according to Lindeman's Trophic Concepts based on the interactions among the living nodes of the ecosystem and the effect of the Detrital Pool (i.e. the non-living components of the ecosystem. 
+
+It is the third section of results in the well-known network analysis software *NETWRK 4.2b* by Dr. Ulanowicz. The enaTrophic function replicates the same results as presented in NETWRK.
+
+The trophic aggregation algorithm requires the Network object to be ordered such that the non-living nodes appear at the end. (like the models stored in enaR)
+
+The following are the different results that the function returns in the form of a list.
+
+'>T<-enaTrophic(m)'
+'>attributes(T)'
+'$names
+ [1] "A"    "ETL"  "CE"   "CR"   "GC"   "RDP"  "DTRY" "INPD" "CIRD" "LS"   "TE"  '
+
+1. Lindeman Transformation Matrix (A)
+   ----------------------------------
+   It is a matrix with dimension = no. of living nodes in m. And it gives the Lindeman transformation matrix 
