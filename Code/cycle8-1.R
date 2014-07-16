@@ -166,9 +166,15 @@ Cycle2 <- function (x) {
             WKARC<-F[IMIN,JMIN]*TPTS[IMIN]
             curr.slf.cyc<-noquote(c(NCYC,'.','(',IMIN,JMIN,')'))
             print(curr.slf.cyc)
+            this.cycle <- rep(NA,N)
+            this.cycle[1:2] <- c(IMIN,JMIN)
+            newcycle<-c((NEXNUM+1),this.cycle)
+            df.cycle<-rbind(df.cycle,newcycle)
+            
             web[IMIN,JMIN] <- 0
             NEXNUM <- NEXNUM+1
             curr.nexus <- c(NEXNUM,NNEX,IMIN,JMIN,WKARC)
+
             df<-rbind(df,curr.nexus) ### ('NEXUS', 'Cycles', weakarc, fromnode, tonode) ####################### df
             
             NFST <- 1
