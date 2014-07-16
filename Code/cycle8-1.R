@@ -16,6 +16,7 @@ Cycle2 <- function (x) {
     z <- x %v% "input"
     TST <- sum(web)+sum(y)+sum(z)
     df<-data.frame(NULL)
+    df.cycle<-data.frame(NULL)
 ###-----------------------------------------------------------------
 
                                         #Zero Global Variables
@@ -280,6 +281,10 @@ Cycle2 <- function (x) {
                 }
                 curr.cycle <- noquote(c(NCYC,'.',NTEMP[1:L0]))
                 print(curr.cycle)
+                this.cycle <- NTEMP
+                this.cycle[this.cycle==-2]<-NA
+                newcycle<-c((NEXNUM+1),this.cycle)
+                df.cycle<-rbind(df.cycle,newcycle)            #################------------------------------------df.cycle
                 skip.con.adv<-TRUE
             }#end of rep1
                                         #-----------------NEXUS COMPLETED---NEXUS REPEAT(rep1) ENDS HERE
@@ -333,8 +338,9 @@ Cycle2 <- function (x) {
         #print(c('cycling index is',TEMP))
         ResidualFlows<-web
         AggregatedCycles<-(x %n% 'flow') - ResidualFlows
-        colnames(df)<-c('NEXUS', 'Cycles','Imin','Jmin', 'Weak_arc')
-        out <- list(df=df,No_of_cycles=NCYC, No_of_nexus = NEXNUM, CycleDist = cycs, NormDist=CYCS, CyclingIndex = TEMP, WEB=web, AggregatedCycles=AggregatedCycles)
+        colnames(df)<-c('NEXUS', 'Cycles','From','To', 'Weak_arc')
+        colnames(df.cycle)<-c('NEXUS','CYCLE NODES',NULL)
+        out <- list(df.cycle=df.cycle,df=df,No_of_cycles=NCYC, No_of_nexus = NEXNUM, CycleDist = cycs, NormDist=CYCS, CyclingIndex = TEMP, WEB=web, AggregatedCycles=AggregatedCycles)
         return(out)
     }#end of if (NFST!=0)
     else {
