@@ -165,7 +165,7 @@ Cycle2 <- function (x) {
             CYCS[1]<- CYCS[1]+web[IMIN,JMIN]
             WKARC<-F[IMIN,JMIN]*TPTS[IMIN]
             curr.slf.cyc<-noquote(c(NCYC,'.','(',IMIN,JMIN,')'))
-            print(curr.slf.cyc)
+            #print(curr.slf.cyc)
             this.cycle <- rep(NA,N)
             this.cycle[1:2] <- c(IMIN,JMIN)
             newcycle<-c((NEXNUM+1),this.cycle)
@@ -286,7 +286,7 @@ Cycle2 <- function (x) {
                     NTEMP[kk] <- MAP2[NTMP]
                 }
                 curr.cycle <- noquote(c(NCYC,'.',NTEMP[1:L0]))
-                print(curr.cycle)
+                #print(curr.cycle)
                 this.cycle <- NTEMP
                 this.cycle[this.cycle==-2]<-NA
                 newcycle<-c((NEXNUM+1),this.cycle)
@@ -345,12 +345,14 @@ Cycle2 <- function (x) {
         ResidualFlows<-web
         AggregatedCycles<-(x %n% 'flow') - ResidualFlows
         colnames(df)<-c('NEXUS', 'Cycles','From','To', 'Weak_arc')
-        colnames(df.cycle)<-c('NEXUS','CYCLE NODES',NULL)
-        out <- list(df.cycle=df.cycle,df=df,No_of_cycles=NCYC, No_of_nexus = NEXNUM, CycleDist = cycs, NormDist=CYCS, CyclingIndex = TEMP, WEB=web, AggregatedCycles=AggregatedCycles)
+        colnames(df.cycle)<-rep(' ',(N+1))
+        colnames(df.cycle)[1:2]<-c('NEXUS','CYCLE NODES')
+        df.cycle[is.na(df.cycle)==TRUE]<- ' '
+        out <- list(Table.cycle=df.cycle,Table.nexus=df,No_of_cycles=NCYC, No_of_nexus = NEXNUM, CycleDist = cycs, NormDist=CYCS, CyclingIndex = TEMP, WEB=web, AggregatedCycles=AggregatedCycles)
         return(out)
     }#end of if (NFST!=0)
     else {
-        print('No Cycles Detected')
+        warning('No Cycles Detected')
         out <- list(WEB=web,N_cyc=NCYC)
         return(out)
       }
