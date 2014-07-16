@@ -167,11 +167,11 @@ cycliv <- function(x){
             CYCS[1]<- CYCS[1]+web[IMIN,JMIN]
             WKARC<-F[IMIN,JMIN]*TPTS[IMIN]
             curr.slf.cyc<-noquote(c(NCYC,'.','(',IMIN,JMIN,')'))
-            print(curr.slf.cyc)
+            #print(curr.slf.cyc)
             web[IMIN,JMIN] <- 0
             NEXNUM <- NEXNUM+1
             curr.nexus<- noquote(c('Nexus ',NEXNUM,'Consists of',NNEX,'cycles.','Weak arc:','(',IMIN,JMIN,')=',WKARC))
-            print(curr.nexus)
+            #print(curr.nexus)
             NFST <- 1
         }#End of if(slf.loop==TRUE)#
         
@@ -273,7 +273,8 @@ cycliv <- function(x){
                 NNEX <- NNEX+1
                 KTRY <- NNEX%%5000
                 curr.prog <- noquote(c(NNEX,'Nexus cycles and Counting'))
-                if(KTRY==0) {print(curr.prog)}
+                if(KTRY==0) {#print(curr.prog)
+                	}
                 NCYC <- NCYC+1
                 L0 <- LM1+1
                 for (kk in 1:L0) {
@@ -281,7 +282,7 @@ cycliv <- function(x){
                     NTEMP[kk] <- MAP2[NTMP]
                 }
                 curr.cycle <- noquote(c(NCYC,'.',NTEMP[1:L0]))
-                print(curr.cycle)
+                #print(curr.cycle)
                 skip.con.adv<-TRUE
             }#end of rep1
             #-----------------NEXUS COMPLETED---NEXUS REPEAT(rep1) ENDS HERE
@@ -292,11 +293,11 @@ cycliv <- function(x){
             WKARC=F[IMIN,JMIN]*TPTS[IMIN]
             NEXNUM=NEXNUM+1
             curr.nexus <- noquote(c('NEXUS',NEXNUM,'Consists of',NNEX,'cycles.','Weak arc:','(',IMIN,JMIN,')=',WKARC))
-            print(curr.nexus)
+            #print(curr.nexus)
             # -------------------------------------
             # Normalize Probability Matrix & Subtract proper amounts from web
             PIVOT <- TMP[IMIN,JMIN]
-            if(PIVOT<=0){print('Error in Normalizing Nexus Weights')}
+            if(PIVOT<=0){warning('Error in Normalizing Nexus Weights')}
             for(i in 1:N) {
                 for(j in 1:N) {
                     if(web[i,j]<=0) {next}
@@ -322,14 +323,14 @@ cycliv <- function(x){
     web=abs(web)
     if(NFST!=0) {
         cyc.rem <- noquote((c('A total of ',NCYC,'Cycles removed')))
-        print(cyc.rem)
+        #print(cyc.rem)
         #print('Cycle Distributions')
-        print(CYCS)
+        #print(CYCS)
         cycs<-CYCS
         CYC  <- sum(CYCS)
         CYCS <- (CYCS/TST)
         #print('Normalized Distribution')
-        print(CYCS)
+        #print(CYCS)
         TEMP <- CYC/TST
         #print(c('cycling index is',TEMP))
         out <- list(N_cycs=NCYC,CycleDist = cycs, NormDist=CYCS, CyclingIndex = TEMP, WEB=web)
