@@ -15,6 +15,7 @@ Cycle2 <- function (x) {
     F <- web/TPTS
     z <- x %v% "input"
     TST <- sum(web)+sum(y)+sum(z)
+    df<-data.frame(NULL)
 ###-----------------------------------------------------------------
 
                                         #Zero Global Variables
@@ -166,8 +167,9 @@ Cycle2 <- function (x) {
             print(curr.slf.cyc)
             web[IMIN,JMIN] <- 0
             NEXNUM <- NEXNUM+1
-            curr.nexus<- noquote(c('Nexus ',NEXNUM,'Consists of',NNEX,'cycles.','Weak arc:','(',IMIN,JMIN,')=',WKARC))
-            print(curr.nexus)
+            curr.nexus <- c(NEXNUM,NNEX,IMIN,JMIN,WKARC)
+            df<-rbind(df,curr.nexus) ### ('NEXUS', 'Cycles', weakarc, fromnode, tonode) ####################### df
+            
             NFST <- 1
         }#End of if(slf.loop==TRUE)#
 
@@ -287,8 +289,9 @@ Cycle2 <- function (x) {
                                         # Report this NEXUS
             WKARC=F[IMIN,JMIN]*TPTS[IMIN]
             NEXNUM=NEXNUM+1
-            curr.nexus <- noquote(c('NEXUS',NEXNUM,'Consists of',NNEX,'cycles.','Weak arc:','(',IMIN,JMIN,')=',WKARC))
-            print(curr.nexus)
+            curr.nexus <- c(NEXNUM,NNEX,IMIN,JMIN,WKARC)
+            df<-rbind(df,curr.nexus) ### ('NEXUS', 'Cycles', weakarc, fromnode, tonode) ####################### df
+            #print(curr.nexus)
             # -------------------------------------
             # Normalize Probability Matrix & Subtract proper amounts from web
             PIVOT <- TMP[IMIN,JMIN]
@@ -301,7 +304,7 @@ Cycle2 <- function (x) {
             }
 
             # Add proper amts to cycle distributions
-            for(i in 1:N){CYCS[i]<-CYCS[i]+((TCYCS[i]/PIVOT)*ARCMIN)}
+            for(i in 1:N){CYCS[i]<-CYCS[i]+((TCYCS[i]/PIVOT)*ARCMIN)}               ############################## ERR.CHK CYCS depends on TCYCS, PIVOT, ARCMIN
 
             # Zero weak arc
             web[IMIN,JMIN] <- 0
@@ -317,20 +320,21 @@ Cycle2 <- function (x) {
     ### FIRST, UNCOVER ANY LINKS "HIDDEN" DURING SEARCH.
     web=abs(web)
     if(NFST!=0) {
-        cyc.rem <- noquote((c('A total of ',NCYC,'Cycles removed')))
-        print(cyc.rem)
+        #cyc.rem <- noquote((c('A total of ',NCYC,'Cycles removed')))
+        #print(cyc.rem)
         #print('Cycle Distributions')
-        print(CYCS)
-        cycs<-CYCS
+        #print(CYCS)
+        cycs<-CYCS 
         CYC  <- sum(CYCS)
         CYCS <- (CYCS/TST)
         #print('Normalized Distribution')
-        print(CYCS)
+        #print(CYCS)
         TEMP <- CYC/TST
         #print(c('cycling index is',TEMP))
         ResidualFlows<-web
         AggregatedCycles<-(x %n% 'flow') - ResidualFlows
-        out <- list(CycleDist = cycs, NormDist=CYCS, CyclingIndex = TEMP, WEB=web, AggregatedCycles=AggregatedCycles)
+        colnames(df)<-c('NEXUS', 'Cycles','Imin','Jmin', 'Weak_arc')
+        out <- list(df=df,No_of_cycles=NCYC, No_of_nexus = NEXNUM, CycleDist = cycs, NormDist=CYCS, CyclingIndex = TEMP, WEB=web, AggregatedCycles=AggregatedCycles)
         return(out)
     }#end of if (NFST!=0)
     else {
