@@ -168,7 +168,7 @@ Cycle2 <- function (x) {
             #print(curr.slf.cyc)
             this.cycle <- rep(NA,N)
             this.cycle[1:2] <- c(IMIN,JMIN)
-            newcycle<-c((NEXNUM+1),this.cycle)
+            newcycle<-c(NCYC,(NEXNUM+1),this.cycle)
             df.cycle<-rbind(df.cycle,newcycle)
             
             web[IMIN,JMIN] <- 0
@@ -280,6 +280,10 @@ Cycle2 <- function (x) {
                 curr.prog <- noquote(c(NNEX,'Nexus cycles and Counting'))
                 if(KTRY==0) {print(curr.prog)}
                 NCYC <- NCYC+1
+                if(NNEX>50){
+                	skip.con.adv <- TRUE
+                	next
+                }
                 L0 <- LM1+1
                 for (kk in 1:L0) {
                     NTMP <- NODE[kk]
@@ -288,9 +292,10 @@ Cycle2 <- function (x) {
                 curr.cycle <- noquote(c(NCYC,'.',NTEMP[1:L0]))
                 #print(curr.cycle)
                 this.cycle <- NTEMP
-                this.cycle[this.cycle==-2]<-NA
-                newcycle<-c((NEXNUM+1),this.cycle)
+                this.cycle[(L0+1):N]<-NA
+                newcycle<-c(NCYC,(NEXNUM+1),this.cycle)
                 df.cycle<-rbind(df.cycle,newcycle)            #################------------------------------------df.cycle
+                if(NNEX==50) {df.cycle<-rbind(df.cycle,rep(NA,N+2))}
                 skip.con.adv<-TRUE
             }#end of rep1
                                         #-----------------NEXUS COMPLETED---NEXUS REPEAT(rep1) ENDS HERE
@@ -346,7 +351,7 @@ Cycle2 <- function (x) {
         AggregatedCycles<-(x %n% 'flow') - ResidualFlows
         colnames(df)<-c('NEXUS', 'Cycles','From','To', 'Weak_arc')
         colnames(df.cycle)<-rep(' ',(N+1))
-        colnames(df.cycle)[1:2]<-c('NEXUS','CYCLE NODES')
+        colnames(df.cycle)[1:3]<-c('CYCLE','NEXUS','CYCLE NODES')
         df.cycle[is.na(df.cycle)==TRUE]<- ' '
         out <- list(Table.cycle=df.cycle,Table.nexus=df,No_of_cycles=NCYC, No_of_nexus = NEXNUM, CycleDist = cycs, NormDist=CYCS, CyclingIndex = TEMP, WEB=web, AggregatedCycles=AggregatedCycles)
         return(out)
