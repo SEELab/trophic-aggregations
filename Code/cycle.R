@@ -11,9 +11,10 @@ Cycle2 <- function (x) {
     web <- x %n% "flow"
     y <- x %v% "output"
     N <- length(y)
-    TPTS <- apply(web,2,sum) + y
-    F <- web/TPTS
     z <- x %v% "input"
+    TPTS <- apply(web,2,sum) + z
+    F <- web/TPTS
+    
     TST <- sum(web)+sum(y)+sum(z)
     df<-data.frame(NULL)
     df.cycle<-data.frame(NULL)
@@ -22,7 +23,6 @@ Cycle2 <- function (x) {
                                         #Zero Global Variables
     NFST <- NEXNUM <- NCYC <- 0
     CYCS <- rep(0,N)
-    MAP2 <- rep(0,N)
 
 ###-----------------------------------------------------------------
 
@@ -97,8 +97,8 @@ Cycle2 <- function (x) {
                     JM <- ic
                 }
             }
-            print(ARCMIN)
-            print(min(web[web>0]))
+            #print(ARCMIN)
+            #print(min(web[web>0]))
             ### Exit from while(NSTP2<=0) if slf.loop
             if (IMIN == JMIN) {
                 slf.loop <- TRUE
@@ -136,14 +136,14 @@ Cycle2 <- function (x) {
             }
             ### find Common nodes aka members of the NEXUS
             NSTP2 <- 0  ###### ?????
-            MAP2[1:NSTP] <- 0
+            MAP2 <- rep(0,NSTP)
             for (i in 1:NSTP) {
                 if ((NFWD[MAP[i]] <= 0) | (NODE[MAP[i]] <= 0)) {next}
                 NSTP2 <- NSTP2 + 1
                 MAP2[NSTP2] <- MAP[i]
             }
                                         # reorder mapping for IMIN and JMIN to come 1st and 2nd
-            NFWD[1:NSTP2] <- MAP2[1:NSTP2]
+            NFWD <- MAP2
             MAP2[1] <- IMIN
             MAP2[2] <- JMIN ##### SHORTER WAY POSSIBLE ####
             if (NSTP2 > 2) {
