@@ -104,7 +104,7 @@ enaTroAgg <- function (x, balance.override = FALSE){
   gc <- rep(0,nl)
   gc[1] <- sum(A[1,]*T)
   AT = A %*% flow %*% t(A)
-  gc[2:nl]=apply(AT[1:(nl-1),1:nl],1,sum)
+  gc[2:nl]=apply(AT[1:(nl-1),1:nl,drop=FALSE],1,sum)
 
                                         # 6. Returns to Detrital Pool
   rtd <- AT[1:nl,N]
