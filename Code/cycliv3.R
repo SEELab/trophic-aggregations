@@ -358,7 +358,7 @@ cycliv <- function(x){
         TEMP <- CYC/TST
         #print(c('cycling index is',TEMP))
         ResidualFlows<-web
-        AggregatedCycles<-(x %n% 'flow') - ResidualFlows
+        AggregatedCycles<-((x %n% 'flow')[1:N,1:N]) - ResidualFlows
         colnames(df)<-c('NEXUS', 'Cycles','From','To', 'Weak_arc')
         colnames(df.cycle)<-rep(' ',(N+1))
         colnames(df.cycle)[1:3]<-c('CYCLE','NEXUS','CYCLE NODES')

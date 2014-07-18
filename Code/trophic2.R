@@ -84,6 +84,7 @@ enaTroAgg <- function (x, balance.override = FALSE){
   }
   if(nl<N) {for (i in (nl+1):N) {A[N,i]<-1}}
   ## A is the required Lindeman transformation matrix
+  rownames(A) <- 1:N
 
                                         # 2. Effective Trophic Levels
   MF = matrix(1:N, nrow=N, ncol=N, byrow = 'FALSE')
@@ -134,7 +135,7 @@ enaTroAgg <- function (x, balance.override = FALSE){
 
                                         # Output Listing
   ns <- list(Detritivory = dtry, DetritalInput = dinp, DetritalCirc = dcir)
-  out <- list(Feeding_Cycles=Feeding_Cycles, A = A[1:nl,1:nl], ETL = etl, CE = ce1, CR = cr1, GC = gc, RDP = rtd, ns=ns, LS = ls,TE = te)
+  out <- list(Feeding_Cycles=Feeding_Cycles, A = A[1:nl,1:nl], ETL = etl, CE = ce1, CR = cr1, GC = gc, RDP = rtd, LS = ls,TE = te, ns=ns)
 
   return(out)
 
