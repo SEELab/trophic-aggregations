@@ -360,7 +360,7 @@ cycliv <- function(x){
         ResidualFlows<-web
         AggregatedCycles<-((x %n% 'flow')[1:N,1:N]) - ResidualFlows
         colnames(df)<-c('NEXUS', 'Cycles','From','To', 'Weak_arc')
-        colnames(df.cycle)<-rep(' ',(N+1))
+        colnames(df.cycle)<-rep(' ',(N+2))
         colnames(df.cycle)[1:3]<-c('CYCLE','NEXUS','CYCLE NODES')
         df.cycle[is.na(df.cycle)==TRUE]<- ' '
         ns <- list(NCYCS = NCYC, NNEX = NEXNUM, CI = TEMP)
