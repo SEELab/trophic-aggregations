@@ -9,14 +9,15 @@ cycliv <- function(x){
     web.all <- x %n% "flow"
     y.all   <- x %v% "output"
     liv <- x %v% 'living'
-    TPTS.all <- apply(web.all,2,sum)+y.all
+    TPTS.all <- apply(web.all,1,sum)+y.all
     #-------------------------------
     N <- sum(liv)
     web <- web.all[1:N,1:N]
     y <- y.all[1:N]
-    TPTS <- apply(web,2,sum)+y
-    F <- web/TPTS
     z<-(x %v% "input")[1:N]
+    TPTS <- apply(web,2,sum)+z
+    F <- web/TPTS
+    
     TST <- sum(web)+sum(y)+sum(z)
     # -----------------------------
     ###-----------------------------------------------------------------

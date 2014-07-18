@@ -3,17 +3,18 @@
 ### -----------------------------------------------
 
 
-Cycle2 <- function (x) {
+enaCycle <- function (x) {
 
                                         #Initials
 
     if(class(x)!='network') {stop("x is not a network class object")}
     web <- x %n% "flow"
     y <- x %v% "output"
-    N <- length(y)
-    TPTS <- apply(web,2,sum) + y
-    F <- web/TPTS
     z <- x %v% "input"
+    N <- length(y)
+    TPTS <- apply(web,2,sum) + z 
+    F <- web/TPTS
+    
     TST <- sum(web)+sum(y)+sum(z)
     df<-data.frame(NULL)
     df.cycle<-data.frame(NULL)
@@ -97,8 +98,8 @@ Cycle2 <- function (x) {
                     JM <- ic
                 }
             }
-            print(ARCMIN)
-            print(min(web[web>0]))
+            #print(ARCMIN)
+            #print(min(web[web>0]))
             ### Exit from while(NSTP2<=0) if slf.loop
             if (IMIN == JMIN) {
                 slf.loop <- TRUE
@@ -356,7 +357,8 @@ Cycle2 <- function (x) {
         colnames(df.cycle)<-rep(' ',(N+1))
         colnames(df.cycle)[1:3]<-c('CYCLE','NEXUS','CYCLE NODES')
         df.cycle[is.na(df.cycle)==TRUE]<- ' '
-        out <- list(Table.cycle=df.cycle,Table.nexus=df,No_of_cycles=NCYC, No_of_nexus = NEXNUM, CycleDist = cycs, NormDist=CYCS, CyclingIndex = TEMP, WEB=web, AggregatedCycles=AggregatedCycles)
+        ns <- list(NCYCS = NCYC, NNEX = NEXNUM, CI = TEMP)
+        out <- list(Table.cycle=df.cycle,Table.nexus=df,ns=ns, CycleDist = cycs, NormDist=CYCS, ResidualFlows=web, AggregatedCycles=AggregatedCycles)
         return(out)
     }#end of if (NFST!=0)
     else {

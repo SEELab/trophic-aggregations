@@ -132,7 +132,8 @@ enaTroAgg <- function (x, balance.override = FALSE){
   te[is.na(te)] <- 0
 
                                         # Output Listing
-  out <- list(A = A[1:nl,1:nl], ETL = etl, CE = ce1, CR = cr1, GC = gc, RDP = rtd, DTRY = dtry, INPD = dinp, CIRD = dcir, LS = ls,TE = te)
+  ns <- list(Detritivory = dtry, DetritalInput = dinp, DetritalCirc = dcir)
+  out <- list(A = A[1:nl,1:nl], ETL = etl, CE = ce1, CR = cr1, GC = gc, RDP = rtd, ns=ns, LS = ls,TE = te)
 
   return(out)
 
