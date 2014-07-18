@@ -1,27 +1,28 @@
-### NETWRK's Full Cycle Analysis
-### Singh P. | July 2014
+### Cycle Analysis for Feeding Cycles
+### Singh P.  | July 2014
 ### Algorithm Source : Ulanowicz 1991: A package for the Analysis of Ecosystem Flow Networks
-### -----------------------------------------------
+### ---------------------------------------------
 
 
-enaCycle <- function (x) {
+cycliv <- function(x){
 
-                                        #Initials
-
+		 #Initials
     if(class(x)!='network') {stop("x is not a network class object")}
-    web <- x %n% "flow"
-    y <- x %v% "output"
-    z <- x %v% "input"
-    N <- length(y)
-
-    TPTS <- apply(web,2,sum) + z
-
-    z <- x %v% "input"
-    TPTS <- apply(web,2,sum) + z
-
+    web.all <- x %n% "flow"
+    y.all   <- x %v% "output"
+    liv <- x %v% 'living'
+    TPTS.all <- apply(web.all,1,sum)+y.all
+    #-------------------------------
+    N <- sum(liv)
+    web <- web.all[1:N,1:N]
+    y <- y.all[1:N]
+    z<-(x %v% "input")[1:N]
+    TPTS <- apply(web,2,sum)+z
     F <- web/TPTS
 
     TST <- sum(web)+sum(y)+sum(z)
+    # -----------------------------
+    ###-----------------------------------------------------------------
     df<-data.frame(NULL)
     df.cycle<-data.frame(NULL)
 ###-----------------------------------------------------------------
@@ -363,7 +364,7 @@ enaCycle <- function (x) {
         colnames(df.cycle)[1:3]<-c('CYCLE','NEXUS','CYCLE NODES')
         df.cycle[is.na(df.cycle)==TRUE]<- ' '
         ns <- list(NCYCS = NCYC, NNEX = NEXNUM, CI = TEMP)
-        out <- list(Table.cycle=df.cycle,Table.nexus=df,CycleDist = cycs, NormDist=CYCS, ResidualFlows=web, AggregatedCycles=AggregatedCycles, ns=ns)
+        out <- list(Table.cycle=df.cycle,Table.nexus=df,ns=ns, CycleDist = cycs, NormDist=CYCS, ResidualFlows=web, AggregatedCycles=AggregatedCycles)
         return(out)
     }#end of if (NFST!=0)
     else {

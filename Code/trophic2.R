@@ -14,7 +14,8 @@ enaTroAgg <- function (x, balance.override = FALSE){
   N <- length(liv)
   flow <- x %n% 'flow'
   XCHNGE<-flow
-  XCHNGE[1:nl,1:nl] <- cycliv(x)$WEB
+  Feeding_Cycles   <- cycliv(x)
+  XCHNGE[1:nl,1:nl] <- Feeding_Cycles$ResidualFlows
   Ti <- x %v% "input"       ##AINPUT
   T <- Ti + apply(XCHNGE, 2, sum)
 
@@ -133,7 +134,7 @@ enaTroAgg <- function (x, balance.override = FALSE){
 
                                         # Output Listing
   ns <- list(Detritivory = dtry, DetritalInput = dinp, DetritalCirc = dcir)
-  out <- list(A = A[1:nl,1:nl], ETL = etl, CE = ce1, CR = cr1, GC = gc, RDP = rtd, ns=ns, LS = ls,TE = te)
+  out <- list(Feeding_Cycles=Feeding_Cycles, A = A[1:nl,1:nl], ETL = etl, CE = ce1, CR = cr1, GC = gc, RDP = rtd, ns=ns, LS = ls,TE = te)
 
   return(out)
 
