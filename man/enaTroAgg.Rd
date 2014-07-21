@@ -10,7 +10,7 @@
 enaTroAgg(x)
 }
 \arguments{
-  \item{x}{a network object.  This includes all weighted flows into and out of each node. It should include separate respiration and export values for the Canonical Exports and Canonical Respirations results, respectively. It must also include the "Living" vector that identifies the living (TRUE/FALSE) status of each node.  
+  \item{x}{a network object.  This includes all weighted flows into and out of each node. It should include separate respiration and export values for the Canonical Exports and Canonical Respirations results respectively. It must also include the "Living" vector that identifies the living (TRUE/FALSE) status of each node.  
   }
 
 }

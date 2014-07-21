@@ -36,11 +36,15 @@ enaCycle(x)
 \author{
   Pawandeep Singh (pawan.s@live.co.uk)
   }
-\note{This function uses the backtracking procedure for the identification of simple cycles, which are cycles that cross a node only once except the starting node. The backtracking process is a depth-first search algorithm.
+\note{The "NODES" in "Table.cycle" are arranged such that the weak arc for the nexus is the arc between the first two nodes of the cycle.
 	
-	If the number of cycles in a nexus is more than 50, then a blank line is displayed after 50 cycles in the data.frame "Table.cycle" followed by the cycles of the next nexus.
+	This function uses the backtracking procedure for the identification of simple cycles, which are cycles that cross a node only once except the starting node. The backtracking process is a depth-first search algorithm.
+	
+	In the data.frame "Table.cycle", if the number of cycles in a nexus is more than 50, then a blank line is displayed after 50 cycles of the nexus, followed by the cycles of the next nexus.
 	
 	The results of the analysis of Feeding Cycles can be obtained as a byproduct of the enaTroAgg function that analyzes the trophic dynamics of a network.
+	
+	At every multiple of 5000 cycles in a nexus, the program prints an indication for the user to know that it is still running.
 	}
 	
 \seealso{
