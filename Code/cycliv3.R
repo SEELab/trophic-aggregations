@@ -368,8 +368,8 @@ cycliv <- function(x){
         return(out)
     }#end of if (NFST!=0)
     else {
-        warning('No Cycles Detected')
-        out <- list(ResidualFlows=web,N_cyc=NCYC)
+        ns <- list(NCYCS = NCYC, NNEX = NEXNUM, CI = 0)
+        out <- list(ResidualFlows=web, ns=ns)
         return(out)
       }
 

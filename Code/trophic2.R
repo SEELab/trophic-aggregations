@@ -90,6 +90,11 @@ enaTroAgg <- function (x, balance.override = FALSE){
   MF = matrix(1:N, nrow=N, ncol=N, byrow = 'FALSE')
   etl = rep(1,N)
   etl[1:nl] = apply((MF*A)[1:nl,1:nl],2,sum)
+  
+  
+  ci <- Ti
+  ci <- A %*% Ti
+  ci <- as.vector(ci)
 
 
                                         # 3. Canonical Exports
@@ -110,6 +115,7 @@ enaTroAgg <- function (x, balance.override = FALSE){
 
                                         # 6. Returns to Detrital Pool
   rtd <- AT[1:nl,N]
+  rtd <- as.vector(rtd)
 
                                         # 7. Detrivory
   dtry <- sum(AT[N,1:nl])
@@ -135,8 +141,14 @@ enaTroAgg <- function (x, balance.override = FALSE){
 
                                         # Output Listing
   ns <- list(Detritivory = dtry, DetritalInput = dinp, DetritalCirc = dcir)
-  out <- list(Feeding_Cycles=Feeding_Cycles, A = A[1:nl,1:nl], ETL = etl, CE = ce1, CR = cr1, GC = gc, RDP = rtd, LS = ls,TE = te, ns=ns)
-
+  if(NMIG>0) {
+  	out <- list(Feeding_Cycles=Feeding_Cycles, A = A[1:nl,1:nl], ETL = etl, M.Flow = mig.input, CI = ci, CE = ce1, CR = cr1, GC = gc, RDP = rtd, LS = ls,TE = te, ns=ns) 	
+  }
+  else{
+  	out <- list(Feeding_Cycles=Feeding_Cycles, A = A[1:nl,1:nl], ETL = etl, CE = ce1, CR = cr1, GC = gc, RDP = rtd, LS = ls,TE = te, ns=ns)
+  	
+  }
+  
   return(out)
 
   }#End of Function troAgg

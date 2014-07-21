@@ -358,7 +358,7 @@ enaCycle <- function (x) {
         #print(c('cycling index is',TEMP))
         ResidualFlows<-web
         AggregatedCycles<-(x %n% 'flow') - ResidualFlows
-        colnames(df)<-c('NEXUS', 'Cycles','From','To', 'Weak_arc_flow')
+        colnames(df)<-c('NEXUS', 'CYCLES','W.arc.From','W.arc.To', 'W.arc.Flow')
         colnames(df.cycle)<-rep(' ',(N+2))
         colnames(df.cycle)[1:3]<-c('CYCLE','NEXUS','NODES')
         df.cycle[is.na(df.cycle)==TRUE]<- ' '
@@ -367,8 +367,8 @@ enaCycle <- function (x) {
         return(out)
     }#end of if (NFST!=0)
     else {
-        warning('No Cycles Detected')
-        out <- list(ResidualFlows=web,N_cyc=NCYC)
+        ns <- list(NCYCS = NCYC, NNEX = NEXNUM, CI = 0)
+        out <- list(ResidualFlows=web,ns=ns)
         return(out)
       }
 
