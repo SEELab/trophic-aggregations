@@ -12,6 +12,13 @@ enaTroAgg <- function (x, balance.override = FALSE){
   liv <- x %v% "living"     ##Living vector
   nl = sum(liv)             ##No. of living nodes
   N <- length(liv)
+                                        #Living vector check
+  liv2<-rep(FALSE,N)
+  liv2[1:nl]<-rep(TRUE,nl)
+  if(identical(liv,liv2) == FALSE) {
+      stop('Non-living nodes must be at the end of the list.')
+  }
+
   flow <- x %n% 'flow'
   XCHNGE<-flow
   Feeding_Cycles   <- cycliv(x)
@@ -90,8 +97,8 @@ enaTroAgg <- function (x, balance.override = FALSE){
   MF = matrix(1:N, nrow=N, ncol=N, byrow = 'FALSE')
   etl = rep(1,N)
   etl[1:nl] = apply((MF*A)[1:nl,1:nl],2,sum)
-  
-  
+
+
   ci <- Ti
   ci <- A %*% Ti
   ci <- as.vector(ci)
@@ -142,13 +149,13 @@ enaTroAgg <- function (x, balance.override = FALSE){
                                         # Output Listing
   ns <- list(Detritivory = dtry, DetritalInput = dinp, DetritalCirc = dcir)
   if(NMIG>0) {
-  	out <- list(Feeding_Cycles=Feeding_Cycles, A = A[1:nl,1:nl], ETL = etl, M.Flow = mig.input, CI = ci, CE = ce1, CR = cr1, GC = gc, RDP = rtd, LS = ls,TE = te, ns=ns) 	
+  	out <- list(Feeding_Cycles=Feeding_Cycles, A = A[1:nl,1:nl], ETL = etl, M.Flow = mig.input, CI = ci, CE = ce1, CR = cr1, GC = gc, RDP = rtd, LS = ls,TE = te, ns=ns)
   }
   else{
   	out <- list(Feeding_Cycles=Feeding_Cycles, A = A[1:nl,1:nl], ETL = etl, CE = ce1, CR = cr1, GC = gc, RDP = rtd, LS = ls,TE = te, ns=ns)
-  	
+
   }
-  
+
   return(out)
 
   }#End of Function troAgg

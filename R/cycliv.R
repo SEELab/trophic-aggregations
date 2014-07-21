@@ -12,6 +12,13 @@ cycliv <- function(x){
     y.all   <- x %v% "output"
     liv <- x %v% 'living'
     TPTS.all <- apply(web.all,1,sum)+y.all
+    nl<-sum(liv)
+    N<-length(liv)
+    liv2<-rep(FALSE,N)
+    liv2[1:nl]<-rep(TRUE,nl)
+    if(identical(liv,liv2) == FALSE) {
+    	stop('Non-living nodes must be at the end of the list.')
+  }
     #-------------------------------
     N <- sum(liv)
     web <- web.all[1:N,1:N]
