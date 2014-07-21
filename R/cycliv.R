@@ -306,7 +306,7 @@ cycliv <- function(x){
                     NTMP <- NODE[kk]
                     NTEMP[kk] <- MAP2[NTMP]
                 }
-                curr.cycle <- noquote(c(NCYC,'.',NTEMP[1:L0]))
+                #curr.cycle <- noquote(c(NCYC,'.',NTEMP[1:L0]))
                 #print(curr.cycle)
                 this.cycle <- NTEMP
                 this.cycle[(L0+1):N]<-NA
@@ -368,7 +368,7 @@ cycliv <- function(x){
         AggregatedCycles<-((x %n% 'flow')[1:N,1:N]) - ResidualFlows
         colnames(df)<-c('NEXUS', 'Cycles','From','To', 'Weak_arc')
         colnames(df.cycle)<-rep(' ',(N+2))
-        colnames(df.cycle)[1:3]<-c('CYCLE','NEXUS','CYCLE NODES')
+        colnames(df.cycle)[1:3]<-c('CYCLE','NEXUS','NODES')
         df.cycle[is.na(df.cycle)==TRUE]<- ' '
         ns <- list(NCYCS = NCYC, NNEX = NEXNUM, CI = TEMP)
         out <- list(Table.cycle=df.cycle,Table.nexus=df,ns=ns, CycleDist = cycs, NormDist=CYCS, ResidualFlows=web, AggregatedCycles=AggregatedCycles)
