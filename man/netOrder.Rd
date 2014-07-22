@@ -1,10 +1,10 @@
-\name{Order}
-\alias{Order}
+\name{netOrder}
+\alias{netOrder}
 \title{
-Reorder nodes in a network.
+Reorder nodes in a network in enaR.
 }
 \description{
-	Reorders nodes in a network either through a user defined node order vector or by default moves the non-living nodes to the end of the node vector, minimizing the order change for other nodes.
+	Reorders nodes in a network either through a user defined node order vector or by default places the non-living nodes to the end of the node vector, minimizing the order change for other nodes.
 }
 \usage{
 Order(x,ordr)
@@ -40,5 +40,5 @@ Pawandeep Singh (pawan.s@live.co.uk)
 \examples{
 data(troModels)
 new.network<-Order(troModels[[6]],c(1,3,2,5,4))
-# new.network is the required rearranged vector with nodes in the desired order.
+# new.network is the required rearranged network with nodes in the desired order.
 }

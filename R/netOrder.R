@@ -1,8 +1,8 @@
-### Function to order the nodes in a Network
+### Function to order the nodes in a Network in enaR
 ### Singh P. | July 2014
 ### -----------------------------------------
 
-Order <- function(x,ordr=0) {
+netOrder <- function(x,ordr=0) {
     if (class(x) != "network") {
         stop("x is not a network class object")
     }
