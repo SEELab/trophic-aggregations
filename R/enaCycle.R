@@ -16,9 +16,6 @@ enaCycle <- function (x) {
 
     TPTS <- apply(web,2,sum) + z
 
-    z <- x %v% "input"
-    TPTS <- apply(web,2,sum) + z
-
     F <- web/TPTS
 
     TST <- sum(web)+sum(y)+sum(z)
